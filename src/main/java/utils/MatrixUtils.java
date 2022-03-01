@@ -1,0 +1,96 @@
+package utils;
+
+import java.util.Arrays;
+
+public class MatrixUtils {
+
+    public static float getMatrixValueFromIndex(float[][] matrix, int index){
+        int counter = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if(index==counter){
+                    return matrix[i][j];
+                }
+                counter++;
+            }
+        }
+        return 0;
+    }
+
+    public static float[][] transpose(float[][] matrix){
+        int m = matrix.length;
+        int n = matrix[0].length;
+        float[][] trans = new float[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                trans[i][j] = matrix[j][i];
+            }
+        }
+        return trans;
+    }
+
+    public static void add(float[][] matrixA, float[][] matrixB){
+        for (int i = 0; i < matrixA.length; i++) {
+            for (int j = 0; j < matrixA[i].length; j++) {
+                matrixA[i][j] += matrixB[i][j];
+            }
+        }
+    }
+
+    public static void multiply(float[][] matrixA, float[] matrixB){
+        for (int i = 0; i < matrixA.length; i++) {
+            for (int j = 0; j < matrixA[i].length; j++) {
+                matrixA[i][j] = matrixA[i][j] * matrixB[i];
+            }
+        }
+    }
+
+    public static float multiply(float[] matrixA, float scalar){
+        float value = 0;
+        for (int i = 0; i < matrixA.length; i++) {
+            value += matrixA[i] * scalar;
+        }
+        return value;
+    }
+
+    public static float[] MultiArrayToSimpleArray(float[][][] matrix){
+        int index = 1;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                for (int k = 0; k < matrix[i][j].length; k++) {
+                    index++;
+                }
+            }
+        }
+        float[] array = new float[index];
+        index = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                for (int k = 0; k < matrix[i][j].length; k++) {
+                    array[index] = matrix[i][j][k];
+                    index++;
+                }
+            }
+        }
+        return array;
+    }
+
+    public static byte[][] getPartOfArray(byte[][] matrix, int startX, int startY, int endX, int endY){
+        byte[][] result = new byte[endY-startY][endX-startX];
+        int xIndex = 0;
+        int yIndex = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if((i>= startY && i<endY) && (j>=startX && j<endX)){
+                    result[yIndex][xIndex] = matrix[i][j];
+                    xIndex++;
+                    if(xIndex==result[0].length){
+                        xIndex = 0;
+                        yIndex++;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}

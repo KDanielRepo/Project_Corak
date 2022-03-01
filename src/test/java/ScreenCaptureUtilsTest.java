@@ -24,7 +24,7 @@ public class ScreenCaptureUtilsTest {
 
         File output = new File("test.jpg");
         ImageIO.write(test, "jpg", output);
-        byte[] a = NeuralNetworkUtils.convertBinaryImageToInputs(test);
+        byte[][] a = NeuralNetworkUtils.convertBinaryImageToInputs(test);
 
     }
 }
