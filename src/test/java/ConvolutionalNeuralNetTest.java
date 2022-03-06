@@ -71,13 +71,11 @@ public class ConvolutionalNeuralNetTest {
         createFinalFilter();
         ConvolutionalNeuralNet convolutionalNeuralNet = new ConvolutionalNeuralNet();
         convolutionalNeuralNet.setFilterValue(filter);
-        int[] structure = new int[]{193, 90, 45, 20, 10};
-        NeuralNet neuralNet = new NeuralNet(structure);
 
         //NeuralNet neuralNet = new NeuralNet();
 
 
-        BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\GOLDtest.jpg"));
+        BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Ithilgore\\Desktop\\rbgTest.png"));
 
         float[][][][] test = new float[filter.length][][][];
         float[][][][] testPool = new float[filter.length][][][];
@@ -100,11 +98,15 @@ public class ConvolutionalNeuralNetTest {
             testPool[i] = convolutionalNeuralNet.pooling(test[i],2);
         }
         //System.out.println(Arrays.deepToString(testPool[filter.length-1]));
-        float[] x = MatrixUtils.MultiArrayToSimpleArray(testPool[filter.length-1]);
+        float[] x = MatrixUtils.multiArrayToSimpleArray(testPool[filter.length-1]);
+
+        int[] structure = new int[]{x.length, 90, 45, 20, 10};
+        NeuralNet neuralNet = new NeuralNet(structure);
         neuralNet.setInputValues(x);
         neuralNet.feedForward();
-        System.out.println(Arrays.toString(neuralNet.getOutputValues()));
+
         long end1 = System.nanoTime();
+        System.out.println(Arrays.toString(neuralNet.getOutputValues()));
         System.out.println(end1 - start1);
     }
 

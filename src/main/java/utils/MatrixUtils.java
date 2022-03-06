@@ -53,17 +53,10 @@ public class MatrixUtils {
         return value;
     }
 
-    public static float[] MultiArrayToSimpleArray(float[][][] matrix){
-        int index = 1;
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[i].length; j++) {
-                for (int k = 0; k < matrix[i][j].length; k++) {
-                    index++;
-                }
-            }
-        }
-        float[] array = new float[index];
-        index = 0;
+    public static float[] multiArrayToSimpleArray(float[][][] matrix){
+        int size = matrix.length*matrix[0].length*matrix[0][0].length+1;
+        float[] array = new float[size];
+        int index = 0;
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
                 for (int k = 0; k < matrix[i][j].length; k++) {

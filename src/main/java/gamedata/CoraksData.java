@@ -8,5 +8,6 @@ import java.util.List;
 public class CoraksData {
     private List<City> cities;
     private List<Hero> heroes;
-    private List<Resources> resources;
+    private Resources resources;
+    private OverworldData overworldData;
 }
