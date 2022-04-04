@@ -1,12 +1,8 @@
 package neuralnetwork;
 
 import ui.UserInterface;
-import utils.MatrixUtils;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NeuralNet {
@@ -24,11 +20,6 @@ public class NeuralNet {
     private UserInterface userInterface;
 
     public NeuralNet() {
-        /*if (userInterface == null || userInterface.getNeuralNetworkStructure().isEmpty()) {
-            structure = Arrays.asList(16, 8, 4);
-        } else {
-            structure = userInterface.getNeuralNetworkStructure();
-        }*/
         createNN();
         weightCount = 0;
     }

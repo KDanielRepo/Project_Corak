@@ -3,6 +3,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import utils.NeuralNetworkUtils;
+import utils.ScreenCaptureUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -26,5 +27,11 @@ public class ScreenCaptureUtilsTest {
         ImageIO.write(test, "jpg", output);
         byte[][] a = NeuralNetworkUtils.convertBinaryImageToInputs(test);
 
+    }
+
+    @Test
+    public void extractSegmentsFromOverWorldTest() throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\screens\\testCapture193.jpg"));
+        ScreenCaptureUtils.extractSegmentsFromOverWorld(bufferedImage);
     }
 }

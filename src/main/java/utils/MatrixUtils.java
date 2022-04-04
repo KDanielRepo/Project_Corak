@@ -68,6 +68,21 @@ public class MatrixUtils {
         return array;
     }
 
+    public static float[][][] simpleArrayToMultiArray(float[] matrix, int channels){
+        int size = (matrix.length / 2) / channels;
+        float[][][] array = new float[channels][size][size];
+        int index = 0;
+        for (int i = 0; i < channels; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    array[i][j][k] = matrix[index];
+                    index++;
+                }
+            }
+        }
+        return array;
+    }
+
     public static byte[][] getPartOfArray(byte[][] matrix, int startX, int startY, int endX, int endY){
         byte[][] result = new byte[endY-startY][endX-startX];
         int xIndex = 0;

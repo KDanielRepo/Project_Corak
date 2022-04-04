@@ -2,12 +2,17 @@ package ui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import neuralnetwork.ConvolutionalNeuralNet;
 import neuralnetwork.CoracsBrain;
 import utils.ScreenCaptureUtils;
@@ -22,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -38,21 +44,50 @@ public class UserInterface extends Application {
 
     @Override
     public void start(Stage primaryStage){
-        primaryStage.setMinWidth(1280);
-        primaryStage.setMinHeight(796);
+        primaryStage.setX(0);
+        primaryStage.setY(0);
+        primaryStage.setMaxWidth(800);
+        primaryStage.setMaxHeight(600);
         primaryStage.setTitle("Project: Corak");
         initialize();
-
+        primaryStage.setAlwaysOnTop(true);
         primaryStage.setScene(mainScene);
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
     }
 
     private void initialize(){
         customListener = new CustomListener();
         mainPane = new BorderPane();
-        mainScene = new Scene(mainPane);
-        index = 0;
+        //mainPane.setOpacity(1);
+        //mainPane.setPickOnBounds(false);
+        //mainPane.setMouseTransparent(true);
+        mainScene = new Scene(mainPane, Color.TRANSPARENT);
+        mainScene.getRoot().setStyle("-fx-background-color: transparent");
+        Canvas canvas = new Canvas(800, 600);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setStroke(Color.RED);
+        gc.setLineWidth(2f);
+        mainPane.setCenter(canvas);
+        index = 589;
+        //test(gc);
         createMenus();
+    }
+
+    private void test(GraphicsContext gc){
+        Thread thread = new Thread(()->{
+            while (true){
+                try{
+                    Thread.sleep(3000);
+                    int x = ThreadLocalRandom.current().nextInt(0, 1260);
+                    int y = ThreadLocalRandom.current().nextInt(0, 776);
+                    gc.strokeRect(x,y, 20, 20);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 
     private void setScreenCaptureArea(){
@@ -71,21 +106,21 @@ public class UserInterface extends Application {
 
     private void createCaptures(){
         Thread thread = new Thread(() -> {
-            while (customListener.getPoint()==null){
+            /*while (customListener.getPoint()==null){
                 try{
                     System.out.println("sleep");
                     Thread.sleep(100);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            }
-            //while (true){
+            }*/
+            while (true){
                 try{
-                    //Thread.sleep(10000);
-                    BufferedImage bufferedImage = ScreenCaptureUtils.createScreenCapture(customListener.getPoint().x, customListener.getPoint().y, 800, 600);
-                    List<BufferedImage> imageList = ScreenCaptureUtils.getResourcesImages(bufferedImage,index);
+                    Thread.sleep(20000);
+                    BufferedImage bufferedImage = ScreenCaptureUtils.createScreenCapture(0, 0, 800, 600, index, true);
+                    //List<BufferedImage> imageList = ScreenCaptureUtils.getResourcesImages(bufferedImage,index);
                     index++;
-                    ScreenCaptureUtils.extractDigitsFromResourceImage(imageList.get(imageList.size()-1));
+                    //ScreenCaptureUtils.extractDigitsFromResourceImage(imageList.get(imageList.size()-1));
                     //coracsBrain = new CoracsBrain();
                     //coracsBrain.setConvolutionalNeuralNet(new ConvolutionalNeuralNet());
 
@@ -93,7 +128,7 @@ public class UserInterface extends Application {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            //}
+            }
         });
         thread.start();
     }
@@ -122,7 +157,7 @@ public class UserInterface extends Application {
             Menu mainMenu = new Menu("test");
             MenuItem screenCaptureArea = new MenuItem("Set screen capture area");
             screenCaptureArea.setOnAction(e->{
-                setScreenCaptureArea();
+                //setScreenCaptureArea();
                 createCaptures();
             });
             MenuItem setScreenCaptureTimer = new MenuItem("Set screen capture timer");
