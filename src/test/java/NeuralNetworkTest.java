@@ -1,4 +1,6 @@
 import neuralnetwork.NeuralNet;
+import neuralnetwork.enums.ActivationFunctionType;
+import neuralnetwork.enums.ErrorCalculationType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -87,11 +89,27 @@ public class NeuralNetworkTest {
         System.out.println("wagi to: "+ Arrays.deepToString(neuralNet.getWeights()));
     }
 
+    @Test
+    public void classificationGuessTest(){
+        createClassificationNeuralNet();
+        float[][] trainingData = new float[][]{};
+        float[][] answers = new float[][]{};
+        neuralNet.train(50000,0.1f,trainingData,"training",answers,true);
+    }
+
     private void createNeuralNet2R(){
         int[] structure = new int[]{2,10,1};
 
         //float[] inputs = new float[]{0.10f, 0.20f, 0.30f, 0.40f};
         neuralNet = new NeuralNet(structure);
         //neuralNet.setInputValues(inputs);
+    }
+
+    private void createClassificationNeuralNet(){
+        int[] structure = new int[]{144,16,16,16,4};
+        neuralNet = new NeuralNet(structure);
+        neuralNet.setOutputActivationFunctionType(ActivationFunctionType.SOFTMAX);
+        neuralNet.setErrorCalculationType(ErrorCalculationType.CROSS_ENTROPY);
+
     }
 }

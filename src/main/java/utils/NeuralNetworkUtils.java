@@ -180,18 +180,18 @@ public class NeuralNetworkUtils {
         return outputs;
     }
 
-    public static float[][] softmaxDerivative(float[] neuronValues) {
-        float[][] derivatives = new float[neuronValues.length][neuronValues.length];
-
-        for (int i = 0; i < derivatives.length; i++) {
-            for (int j = 0; j < derivatives[i].length; j++) {
+    public static float softmaxDerivative(float[] neuronValues) {
+        //float[][] derivatives = new float[neuronValues.length][neuronValues.length];
+        float derivative = 0f;
+        for (int i = 0; i < neuronValues.length; i++) {
+            for (int j = 0; j < neuronValues.length; j++) {
                 if(i == j){
-                    derivatives[i][j] = neuronValues[i] * (1 - neuronValues[i]);
+                    derivative += neuronValues[i] * (1 - neuronValues[i]);
                 }else{
-                    derivatives[i][j] = -neuronValues[i] * neuronValues[j];
+                    derivative += -neuronValues[i] * neuronValues[j];
                 }
             }
         }
-        return derivatives;
+        return derivative;
     }
 }

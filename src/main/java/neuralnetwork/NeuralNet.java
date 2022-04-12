@@ -1,5 +1,7 @@
 package neuralnetwork;
 
+import lombok.Data;
+import lombok.Getter;
 import neuralnetwork.enums.ActivationFunctionType;
 import neuralnetwork.enums.ErrorCalculationType;
 import ui.UserInterface;
@@ -8,6 +10,7 @@ import utils.NeuralNetworkUtils;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Data
 public class NeuralNet {
     private float[] inputs;
     private float[][] outputs;
@@ -180,12 +183,12 @@ public class NeuralNet {
                 weightedSumDerivative = calculateWeightedSumDerivative(i, j);
                 for (int k = 0; k < errors[i][j].length; k++) {
                     activationFunctionDerivative = calculateActivationFunctionDerivative(outputs[i+1][k]);
-                    //outputActivationFunctionDerivative = calculateActivationFunctionDerivative();
+                    outputActivationFunctionDerivative = NeuralNetworkUtils.softmaxDerivative(getOutputsFromLastLayer());
                     float currentActivation = i == errors.length-1 ? outputActivationFunctionDerivative : activationFunctionDerivative;
-                    errors[i][j][k] = learningRate * costFunctionDerivative * activationFunctionDerivative * weightedSumDerivative;
+                    errors[i][j][k] = learningRate * costFunctionDerivative * currentActivation * weightedSumDerivative;
                     weights[i][j][k] += errors[i][j][k];
                     if (k == errors[i][j].length - 1) {
-                        bias[i][k] += learningRate*costFunctionDerivative*activationFunctionDerivative;
+                        bias[i][k] += learningRate*costFunctionDerivative*currentActivation;
                     }
                 }
             }
