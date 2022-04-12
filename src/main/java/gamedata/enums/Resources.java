@@ -1,4 +1,4 @@
-package gamedata;
+package gamedata.enums;
 
 public enum Resources {
     WOOD(0),

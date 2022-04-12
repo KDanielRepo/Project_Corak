@@ -1,4 +1,5 @@
-package gamedata;
+package gamedata.enums;
 
 public enum  Artifacts {
+
 }

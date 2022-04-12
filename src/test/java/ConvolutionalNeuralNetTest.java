@@ -106,7 +106,7 @@ public class ConvolutionalNeuralNetTest {
         neuralNet.feedForward();
 
         long end1 = System.nanoTime();
-        System.out.println(Arrays.toString(neuralNet.getOutputValues()));
+        System.out.println(Arrays.toString(neuralNet.getOutputsFromLastLayer()));
         System.out.println(end1 - start1);
     }
 

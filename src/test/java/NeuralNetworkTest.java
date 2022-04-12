@@ -40,7 +40,7 @@ public class NeuralNetworkTest {
         }
         System.out.println();
         System.out.println("______________________");
-        neuralNet.backPropagation(answers);
+        //neuralNet.backPropagation(answers);
     }
 
     @Test
@@ -52,14 +52,14 @@ public class NeuralNetworkTest {
         neuralNet.setWeights(weights);
         neuralNet.setInputValues(inputs);
         neuralNet.feedForward();
-        neuralNet.backPropagation(answers);
-        neuralNet.calculateGradient(0.1f);
+        neuralNet.backPropagation(0.1f, answers);
+        //neuralNet.calculateGradient(0.1f);
     }
 
     @Test
     public void trainTest(){
         createNeuralNet2R();
-        float[][] data = new float[][]{{0,0},{0,1},{1,0},{1,1}};
+        float[][] data = new float[][]{{1,1},{0,1},{1,0},{0,0}};
         float[][] answers = new float[][]{{0},{1},{1},{0}};
         //float[][][] weights = new float[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
         //neuralNetRefactor.setWeights(weights);

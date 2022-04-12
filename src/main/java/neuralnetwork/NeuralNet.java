@@ -1,6 +1,9 @@
 package neuralnetwork;
 
+import neuralnetwork.enums.ActivationFunctionType;
+import neuralnetwork.enums.ErrorCalculationType;
 import ui.UserInterface;
+import utils.NeuralNetworkUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
@@ -8,16 +11,19 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NeuralNet {
     private float[] inputs;
     private float[][] outputs;
-    private float[][][] weights;//warstwa,neuron,wagi_połączeń
+    private float[][][] weights;//warstwa,neuron,wagi_połączeń, !--WAZNE!!! : ilość wag oznacza ilosc neuronow w warstwie i+1 !!!--!
     private float[][] bias;//dodać do sumy ważonej
-    private float[][] errors; //warstwa, blad neuronu
+    private float[][][] errors; //warstwa,neuron, gradient wagi
 
     private int weightCount;
 
-    private static final float LAMBDA = 1.0507f;
-    private static final float ALPHA = 1.6732f;
     private int[] structure; //wejscia -> x ukrytych -> wyjscia
     private UserInterface userInterface;
+    private ErrorCalculationType errorCalculationType;
+    private ActivationFunctionType activationFunctionType;
+    private ActivationFunctionType outputActivationFunctionType;
+
+    private boolean isUsedInCnn;
 
     public NeuralNet() {
         createNN();
@@ -26,31 +32,40 @@ public class NeuralNet {
 
     public NeuralNet(int[] structure) {
         this.structure = structure;
+        errorCalculationType = ErrorCalculationType.MEAN_SQUARE;
+        activationFunctionType = ActivationFunctionType.SIGMOID;
+        outputActivationFunctionType = ActivationFunctionType.SIGMOID;
         createNN();
+    }
+
+    public NeuralNet(byte[] inputs, boolean isUsedInCnn) {
+
     }
 
     public void createNN() {
         inputs = new float[structure[0]];
         weights = new float[structure.length - 1][][];
         outputs = new float[structure.length][];
-        errors = new float[structure.length - 1][];
+        errors = new float[structure.length - 1][][];
         bias = new float[structure.length - 1][];
         for (int i = 0; i < structure.length; i++) {
             float[] a = new float[structure[i]];
             outputs[i] = a;
             if (i > 0) {
-                float[] c = new float[structure[i]];
                 float[] b = new float[structure[i]];
-                bias[i - 1] = c;
-                errors[i - 1] = b;
+                bias[i - 1] = b;
             }
         }
         for (int i = 0; i < structure.length - 1; i++) {
             float[][] b = new float[structure[i]][];
+            float[][] c = new float[structure[i]][];
             weights[i] = b;
+            errors[i] = c;
             for (int j = 0; j < structure[i]; j++) {
-                float[] c = new float[structure[i + 1]];
-                b[j] = c;
+                float[] d = new float[structure[i + 1]];
+                float[] e = new float[structure[i + 1]];
+                b[j] = d;
+                c[j] = e;
             }
         }
 
@@ -65,20 +80,19 @@ public class NeuralNet {
         for (int i = 0; i < inputs.length; i++) {
             outputs[0][i] = inputs[i];
         }
-        for (int i = 0; i < structure.length-1; i++) {
+        for (int i = 0; i < structure.length - 1; i++) {
             weightedSum(i);
         }
-        //outputs[outputs.length-1] = softmax(outputs[outputs.length-1]);
     }
 
     public void classificationFeedForward() {
         for (int i = 0; i < inputs.length; i++) {
             outputs[0][i] = inputs[i];
         }
-        for (int i = 0; i < structure.length-1; i++) {
+        for (int i = 0; i < structure.length - 1; i++) {
             weightedSum(i);
         }
-        outputs[outputs.length-1] = softmax(outputs[outputs.length-1]);
+        outputs[outputs.length - 1] = NeuralNetworkUtils.softmax(outputs[outputs.length - 1]);
     }
 
     public void weightedSum(int y) {
@@ -87,114 +101,95 @@ public class NeuralNet {
         for (int i = 0; i < innerSize; i++) {
             for (int j = 0; j < weights[y].length; j++) {
                 sum += weights[y][j][i] * outputs[y][j];
-                if(j == weights[y].length-1){
-                    outputs[y+1][i] = sigmoid(sum+bias[y][i]);
+                if (j == weights[y].length - 1) {
+                    outputs[y + 1][i] = selectActivationFunction(sum + bias[y][i]);
                 }
             }
             sum = 0f;
         }
     }
 
-    public void backPropagation(float[] answers) {
+    private float selectActivationFunction(float sum) {
+        switch (activationFunctionType) {
+            case SIGMOID:
+                return NeuralNetworkUtils.sigmoid(sum);
+            case RELU:
+                return NeuralNetworkUtils.relu(sum);
+            case SELU:
+                return NeuralNetworkUtils.selu(sum);
+            case SOFTMAX:
+                return 0;
+            default:
+                throw new IllegalStateException("Unexpected value: " + activationFunctionType);
+        }
+    }
+
+    /*private float selectErrorCalculationType(float answer, float value) {
+        switch (errorCalculationType) {
+            case BASIC:
+                return NeuralNetworkUtils.basicError(answer, value);
+            case MEAN_SQUARE:
+                return NeuralNetworkUtils.meanSquareError(answer, value);
+            default:
+                throw new IllegalStateException("Unexpected value: " + errorCalculationType);
+        }
+    }*/
+
+    public float[] getOutputsFromLastLayer() {
+        return outputs[outputs.length - 1];
+    }
+
+    private float calculateCostFunctionDerivative(float[] answer, float[] value) {
+        switch (errorCalculationType) {
+            case BASIC:
+                return 0;//NeuralNetworkUtils.basicErrorDerivative(answer, value);
+            case MEAN_SQUARE:
+                return NeuralNetworkUtils.meanSquareErrorDerivative(answer, value);
+            case CROSS_ENTROPY:
+                return NeuralNetworkUtils.crossEntropyErrorDerivative(answer, value);
+            default:
+                throw new IllegalStateException("Unexpected value: " + errorCalculationType);
+        }
+    }
+
+    private float calculateActivationFunctionDerivative(float value) {
+        switch (activationFunctionType) {
+            case SIGMOID:
+                return NeuralNetworkUtils.sigmoidDerivative(value);
+            case RELU:
+                return NeuralNetworkUtils.reluDerivative(value);
+            case SELU:
+                return NeuralNetworkUtils.seluDerivative(value); //TODO dodać sprawdzenie czy ostatnia warstwa
+            default:
+                throw new IllegalStateException("Unexpected value: " + activationFunctionType);
+        }
+    }
+
+    private float calculateWeightedSumDerivative(int layer, int neuron) {
+        return outputs[layer][neuron];
+    }
+
+    public void backPropagation(float learningRate, float[] answers) {
+        float activationFunctionDerivative;
+        float outputActivationFunctionDerivative = 0f;
+        float costFunctionDerivative = calculateCostFunctionDerivative(answers, getOutputsFromLastLayer());
+        float weightedSumDerivative;
+
         for (int i = errors.length - 1; i >= 0; i--) {
-            if (i == errors.length - 1) {
-                for (int j = 0; j < errors[i].length; j++) {
-                    errors[i][j] = answers[j] - outputs[i + 1][j];
-                }
-            } else {
-                calculateError(i);
-            }
-        }
-    }
-
-    private void calculateError(int y) {
-        float calculatedError = 0;
-        for (int i = 0; i < weights[y+1].length; i++) {
-            float sumOfWeights = sumWeightsInLayer(y+1);
-            for (int j = 0; j < weights[y+1][i].length; j++) {
-                calculatedError += (weights[y+1][i][j]/sumOfWeights) * errors[y+1][j];
-                if(j == weights[y+1][i].length-1){
-                    errors[y][i] = calculatedError;
+            for (int j = 0; j < errors[i].length; j++) {
+                weightedSumDerivative = calculateWeightedSumDerivative(i, j);
+                for (int k = 0; k < errors[i][j].length; k++) {
+                    activationFunctionDerivative = calculateActivationFunctionDerivative(outputs[i+1][k]);
+                    //outputActivationFunctionDerivative = calculateActivationFunctionDerivative();
+                    float currentActivation = i == errors.length-1 ? outputActivationFunctionDerivative : activationFunctionDerivative;
+                    errors[i][j][k] = learningRate * costFunctionDerivative * activationFunctionDerivative * weightedSumDerivative;
+                    weights[i][j][k] += errors[i][j][k];
+                    if (k == errors[i][j].length - 1) {
+                        bias[i][k] += learningRate*costFunctionDerivative*activationFunctionDerivative;
+                    }
                 }
             }
-            calculatedError = 0f;
         }
-    }
-
-    private float sumWeightsInLayer(int layer){
-        float sum = 0;
-        for (int i = 0; i < weights[layer].length; i++) {
-            for (int j = 0; j < weights[layer][i].length; j++) {
-                sum+= weights[layer][i][j];
-            }
-        }
-        return sum;
-    }
-
-    public void calculateGradient(float learningRate) {
-        for (int i = weights.length - 1; i >= 0; i--) {
-            adjustWeights(learningRate, i);
-        }
-    }
-
-    private void adjustWeights(float learningRate, int y) {
-        for (int i = 0; i < weights[y].length; i++) {
-            for (int j = 0; j < weights[y][i].length; j++) {
-                float value = learningRate * errors[y][j] * (outputs[y + 1][j] * (1 - outputs[y + 1][j])) * outputs[y][i];
-                weights[y][i][j] += value;
-                if(j==weights[y][i].length-1){
-                    bias[y][j] +=value;
-                }
-
-            }
-        }
-    }
-
-    public float sigmoid(float sum) {
-        return (float) (1 / (1 + Math.exp(-sum)));
-    }
-
-    public float derivativeSigmoid(float value) {
-        return sigmoid(value) * (1 - sigmoid(value));
-    }
-
-    public float seluActivation(float sum) {
-        if (sum <= 0) {
-            return ((float) ((ALPHA * Math.exp(sum) - ALPHA) * LAMBDA));
-        }
-        return (sum * LAMBDA);
-
-    }
-
-    public float seluDerivativeFromGuess(float value) {
-        if (value > 0) {
-            return LAMBDA;
-        }
-        return (value + LAMBDA * ALPHA);
-    }
-
-    public float seluDerivative(float value) {
-        if (value > 0) {
-            return LAMBDA;
-        }
-        return (float) (LAMBDA * ALPHA * Math.exp(value));
-    }
-
-    public float[] softmax(float[] neuronValues) {
-        double[] temp = new double[neuronValues.length];
-        float[] outputs = new float[getOutputsFromLastLayer().length];
-        for (int i = 0; i < neuronValues.length; i++) {
-            temp[i] = neuronValues[i];
-        }
-        double total = Arrays.stream(temp).map(Math::exp).sum();
-        for (int i = 0; i < outputs.length; i++) {
-            outputs[i] = (float) (Math.exp(getOutputsFromLastLayer()[i]) / total);
-        }
-        return outputs;
-    }
-
-    private float[] getOutputsFromLastLayer(){
-        return outputs[outputs.length-1];
     }
 
 
@@ -202,15 +197,17 @@ public class NeuralNet {
         for (int i = 0; i < epochSize; i++) {
             int random = ThreadLocalRandom.current().nextInt(0, 4);
             setInputValues(trainingData[random]);
-            if(classification){
+            if (classification) {
                 classificationFeedForward();
-            }else{
+            } else {
                 feedForward();
             }
+            backPropagation(learningRate, answers[random]);
             //System.out.print("odpowiedź to: " + outputs[outputs.length - 1][0]);
             //System.out.println(" dla pytania : " + Arrays.toString(trainingData[random]));
-            backPropagation(answers[random]);
-            calculateGradient(learningRate);
+            //backPropagation -> calculateCost -> calculateGradients(calculateWeightDerivative, calculateActivationFunctionDerivative, calculateWeightedSumDerivative) -> adjustWeights
+            //backPropagation(answers[random]);
+            //calculateGradient(learningRate);
             //System.out.println("________________________________________________");
         }
     }
@@ -244,7 +241,11 @@ public class NeuralNet {
 
     public void initErrors() {
         for (int i = 0; i < errors.length; i++) {
-            Arrays.fill(errors[i], 0f);
+            for (int j = 0; j < errors[i].length; j++) {
+                for (int k = 0; k < errors[i][j].length; k++) {
+                    errors[i][j][k] = 0f;
+                }
+            }
         }
     }
 
@@ -281,9 +282,9 @@ public class NeuralNet {
         return outputs;
     }
 
-    public float[] getOutputValues(){
+    /*public float[] getOutputValues() {
         return softmax(getOutputsFromLastLayer());
-    }
+    }*/
 
     public void setOutputs(float[][] outputs) {
         this.outputs = outputs;
@@ -292,4 +293,47 @@ public class NeuralNet {
     public float[][][] getWeights() {
         return weights;
     }
+
+    /*private void calculateError(int y) {
+        float calculatedError = 0;
+        for (int i = 0; i < weights[y + 1].length; i++) {
+            float sumOfWeights = sumWeightsInLayer(y + 1);
+            for (int j = 0; j < weights[y + 1][i].length; j++) {
+                calculatedError += (weights[y + 1][i][j] / sumOfWeights) * errors[y + 1][j];
+                if (j == weights[y + 1][i].length - 1) {
+                    errors[y][i] = calculatedError;
+                }
+            }
+            calculatedError = 0f;
+        }
+    }*/
+
+    /*private float sumWeightsInLayer(int layer) {
+        float sum = 0;
+        for (int i = 0; i < weights[layer].length; i++) {
+            for (int j = 0; j < weights[layer][i].length; j++) {
+                sum += weights[layer][i][j];
+            }
+        }
+        return sum;
+    }*/
+
+    /*public void calculateGradient(float learningRate) {
+        for (int i = weights.length - 1; i >= 0; i--) {
+            adjustWeights(learningRate, i);
+        }
+    }*/
+
+    /*private void adjustWeights(float learningRate, int y) {
+        for (int i = 0; i < weights[y].length; i++) {
+            for (int j = 0; j < weights[y][i].length; j++) {
+                float value = learningRate * errors[y][j] * (outputs[y + 1][j] * (1 - outputs[y + 1][j])) * outputs[y][i];
+                weights[y][i][j] += value;
+                if (j == weights[y][i].length - 1) {
+                    bias[y][j] += value;
+                }
+
+            }
+        }
+    }*/
 }

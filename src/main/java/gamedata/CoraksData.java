@@ -1,5 +1,6 @@
 package gamedata;
 
+import gamedata.enums.Resources;
 import lombok.Data;
 
 import java.util.List;

@@ -1,5 +1,7 @@
 package gamedata;
 
+import gamedata.enums.UnitType;
+
 import java.util.List;
 
 public class Unit {

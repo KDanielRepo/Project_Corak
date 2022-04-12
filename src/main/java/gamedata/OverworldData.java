@@ -1,5 +1,10 @@
 package gamedata;
 
+import gamedata.enums.Artifacts;
+import gamedata.enums.Building;
+import gamedata.enums.MapSize;
+import gamedata.enums.Resources;
+
 import java.util.Map;
 
 public class OverworldData {
