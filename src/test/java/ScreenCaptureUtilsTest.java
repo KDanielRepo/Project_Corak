@@ -31,7 +31,7 @@ public class ScreenCaptureUtilsTest {
 
     @Test
     public void extractSegmentsFromOverWorldTest() throws IOException {
-        BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\screens\\testCapture193.jpg"));
+        BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\screens\\sur 4.png"));
         ScreenCaptureUtils.extractSegmentsFromOverWorld(bufferedImage);
     }
 }

@@ -1,17 +1,20 @@
 package utils;
 
 import gamedata.enums.Resources;
+import ui.Profile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScreenCaptureUtils {
-    public static BufferedImage createScreenCapture(int x, int y, int width, int height, int index, boolean save) throws IOException, AWTException {
+    public static BufferedImage createScreenCapture(int x, int y, int width, int height, boolean save, Profile profile) throws IOException, AWTException {
         System.out.println("creating capture");
         Robot robot = new Robot();
         Rectangle screenBounds = new Rectangle();
@@ -26,7 +29,7 @@ public class ScreenCaptureUtils {
 
         BufferedImage bufferedImage = robot.createScreenCapture(screenBounds);
         if(save){
-            saveImage(bufferedImage, "./src/main/resources/screens/testCapture"+index+".jpg");
+            saveImage(bufferedImage, "./src/main/resources/profiles/"+profile.getProfileName()+"/screens/capture"+ ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES) +".jpg");
         }
 
         return bufferedImage;
@@ -99,7 +102,7 @@ public class ScreenCaptureUtils {
         List<BufferedImage> subImages = new ArrayList<>();
         for (int i = 0; i < 17; i++) {
             for (int j = 0; j < 18; j++) {
-                BufferedImage subImage = image.getSubimage(((j * 32) + 8), ((i * 32) + 8), 32, 32);
+                BufferedImage subImage = image.getSubimage(((j * 64)), ((i * 64) + 8), 64, 64);
                 subImages.add(subImage);
             }
         }
