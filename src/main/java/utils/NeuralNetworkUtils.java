@@ -151,20 +151,12 @@ public class NeuralNetworkUtils {
         return (float) Math.pow(answer - value, 2) / 2;
     }
 
-    public static float meanSquareErrorDerivative(float[] answer, float[] value) {
-        float derivative = 0f;
-        for (int i = 0; i < answer.length; i++) {
-            derivative += (answer[i] - value[i]);
-        }
-        return derivative;
+    public static float meanSquareErrorDerivative(float answer, float value) {
+        return (value - answer);
     }
 
-    public static float crossEntropyErrorDerivative(float[] answer, float[] value) {
-        float derivative = 0f;
-        for (int i = 0; i < answer.length; i++) {
-            derivative += answer[i] * Math.log(value[i]);
-        }
-        return derivative;
+    public static float crossEntropyErrorDerivative(float answer, float value) {
+        return (float) (answer * Math.log(value));
     }
 
     public static float[] softmax(float[] neuronValues) {

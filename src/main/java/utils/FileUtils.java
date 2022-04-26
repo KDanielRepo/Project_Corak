@@ -1,12 +1,12 @@
 package utils;
 
 import neuralnetwork.Dataset;
+import ui.Profile;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FileUtils {
@@ -36,5 +36,24 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
+    }
+    public static Profile importSettingsFromFile(String profileName) throws Exception {//TODO zmienic Wszędzie sciezki w file
+        File file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\"+profileName);
+        if(!file.exists()){
+            throw new Exception();
+        }
+        Profile profile = new Profile();
+        return null;
+    }
+    public static List<String> getListOfExistingProfiles(){
+        List<String> names = new ArrayList<>();
+        File folder = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles");
+        File[] files = folder.listFiles();
+        if(Objects.nonNull(files)){
+            for (File file : files) {
+                names.add(file.getName());
+            }
+        }
+        return names;
     }
 }
