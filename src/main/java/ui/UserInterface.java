@@ -10,6 +10,7 @@ import neuralnetwork.CoracsBrain;
 import ui.menus.MainMenu;
 import ui.menus.ViewMenu;
 import ui.views.MainAppView;
+import ui.views.TrainingDataCreationView;
 import utils.SettingsUtils;
 
 import java.util.*;
@@ -25,6 +26,7 @@ public class UserInterface extends Application {
     private Profile profile;
 
     private MainAppView mainAppView;
+    private TrainingDataCreationView trainingDataCreationView;
 
     @Override
     public void start(Stage primaryStage){

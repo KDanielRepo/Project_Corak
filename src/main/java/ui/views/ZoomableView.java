@@ -1,4 +1,4 @@
-package ui.abstracts;
+package ui.views;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -8,13 +8,13 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
-public class AbstractZoomableView extends ScrollPane {
+public class ZoomableView extends ScrollPane {
     private double scaleValue = 0.7;
     private double zoomIntensity = 0.02;
     private Node target;
     private Node zoomNode;
 
-    public AbstractZoomableView(Node target) {
+    public ZoomableView(Node target) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);

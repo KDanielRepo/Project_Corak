@@ -20,7 +20,7 @@ public class SettingsUtils {
     public static Settings parseSettings(){
         Settings settings = new Settings();
         try{
-            File file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\settings.txt");
+            File file = new File("C:\\Users\\Ithilgore\\Desktop\\Project_Corak\\src\\main\\resources\\settings.txt");
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -80,7 +80,7 @@ public class SettingsUtils {
         File file = null;
         try{
             if(settings.getLastSelectedProfile().equals(DEFAULT_PROFILE)){
-                file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\default_profile.txt");
+                file = new File("C:\\Users\\Ithilgore\\Desktop\\Project_Corak\\src\\main\\resources\\profiles\\default_profile.txt");
                 file.createNewFile();
                 FileWriter fileWriter = new FileWriter(file);
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
