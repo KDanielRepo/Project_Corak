@@ -34,10 +34,14 @@ public class UserInterface extends Application {
         initialize();
         primaryStage.setMinWidth(profile.getSelectedAppWidth());
         primaryStage.setMinHeight(profile.getSelectedAppHeight());
-        primaryStage.setAlwaysOnTop(true);
+        primaryStage.setAlwaysOnTop(false);
         primaryStage.setScene(mainScene);
         //primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.show();
+        primaryStage.setOnCloseRequest(e->{
+            System.out.println("saving");
+            SettingsUtils.saveProfile(settings, profile);
+        });
     }
 
     private void initialize(){
@@ -81,7 +85,7 @@ public class UserInterface extends Application {
             menuBar = new MenuBar();
 
             MainMenu mainMenu = new MainMenu("test", profile, customListener);
-            ViewMenu viewMenu = new ViewMenu("view", mainPane);
+            ViewMenu viewMenu = new ViewMenu("view", mainPane, profile);
 
             menuBar.getMenus().addAll(mainMenu, viewMenu);
         }

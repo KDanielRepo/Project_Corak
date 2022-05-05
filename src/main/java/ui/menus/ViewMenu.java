@@ -17,16 +17,16 @@ public class ViewMenu extends Menu {
     private TrainingDataCreationView trainingDataCreationView;
     private MainAppView mainAppView;
 
-    public ViewMenu(String name, BorderPane borderPane){
+    public ViewMenu(String name, BorderPane borderPane, Profile profile){
         super(name);
-        initView();
-        initItems(borderPane);
+        initView(profile);
+        initItems(borderPane, profile);
         if(Objects.isNull(borderPane.getCenter())){
             borderPane.setCenter(mainAppView);
         }
     }
 
-    private void initItems(BorderPane borderPane){
+    private void initItems(BorderPane borderPane, Profile profile){
         MenuItem mainAppMenuItem = new MenuItem("Main view");
         mainAppMenuItem.setOnAction(e->{
             borderPane.setCenter(mainAppView);
@@ -42,9 +42,9 @@ public class ViewMenu extends Menu {
         this.getItems().addAll(neuralNetworkMenuItem,trainingDataCreationMenuItem);
     }
 
-    private void initView(){
+    private void initView(Profile profile){
         neuralNetworkVisualizationView = new NeuralNetworkVisualizationView();
-        trainingDataCreationView = new TrainingDataCreationView();
+        trainingDataCreationView = new TrainingDataCreationView(profile);
         mainAppView = new MainAppView();
     }
 }

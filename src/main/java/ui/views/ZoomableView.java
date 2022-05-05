@@ -1,5 +1,6 @@
 package ui.views;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -8,13 +9,15 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
+import java.util.List;
+
 public class ZoomableView extends ScrollPane {
     private double scaleValue = 0.7;
     private double zoomIntensity = 0.02;
-    private Node target;
+    private List<Node> target;
     private Node zoomNode;
 
-    public ZoomableView(Node target) {
+    public ZoomableView(List<Node> target) {
         super();
         this.target = target;
         this.zoomNode = new Group(target);
@@ -45,8 +48,10 @@ public class ZoomableView extends ScrollPane {
     }
 
     private void updateScale() {
-        target.setScaleX(scaleValue);
-        target.setScaleY(scaleValue);
+        target.forEach(t->{
+            t.setScaleX(scaleValue);
+            t.setScaleY(scaleValue);
+        });
     }
 
     private void onScroll(double wheelDelta, Point2D mousePoint) {
@@ -62,12 +67,19 @@ public class ZoomableView extends ScrollPane {
         updateScale();
         this.layout();
 
-        Point2D posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
+        target.forEach(t->{
+            Point2D posInZoomTarget = t.parentToLocal(zoomNode.parentToLocal(mousePoint));
 
-        Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+            Point2D adjustment = t.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
 
-        Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
-        this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
-        this.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
+            Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
+            this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
+            this.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
+        });
+    }
+
+    @Override
+    protected ObservableList<Node> getChildren() {
+        return super.getChildren();
     }
 }

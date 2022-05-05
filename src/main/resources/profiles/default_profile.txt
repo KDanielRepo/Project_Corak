@@ -2,3 +2,4 @@ last_selected_profile:default_profile
 app_width:800
 app_height:600
 grid_size:32
+training_data_labels:test,test2

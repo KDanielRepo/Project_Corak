@@ -1,18 +1,18 @@
 package utils;
 
+import com.sun.deploy.util.StringUtils;
 import ui.Profile;
 import ui.Settings;
 import ui.enums.ProfileParams;
 import ui.enums.SettingParams;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class SettingsUtils {
 
     private static final String LINE_SEPARATOR = ":";
+    private static final String LIST_SEPARATOR = ",";
     private static final int NUMBER_OF_PARAMS = 1;
     private static final String DEFAULT_PROFILE = "default_profile";
     private static final String NEW_LINE = "\n";
@@ -20,7 +20,7 @@ public class SettingsUtils {
     public static Settings parseSettings(){
         Settings settings = new Settings();
         try{
-            File file = new File("C:\\Users\\Ithilgore\\Desktop\\Project_Corak\\src\\main\\resources\\settings.txt");
+            File file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\settings.txt");
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -63,13 +63,16 @@ public class SettingsUtils {
                     throw new RuntimeException();
                 }
                 String param = paramValueArray[0];
-                String value = paramValueArray[1];
+                String value = paramValueArray.length > 1 ? paramValueArray[1] : null;
                 profileParameters.put(param, value);
             });
             profile.setProfileName(profileParameters.get(ProfileParams.PROFILE_NAME.getValue()));
             profile.setSelectedAppWidth(Integer.parseInt(profileParameters.get(ProfileParams.APP_WIDTH.getValue())));
             profile.setSelectedAppHeight(Integer.parseInt(profileParameters.get(ProfileParams.APP_HEIGHT.getValue())));
             profile.setSelectedGridSize(Integer.parseInt(profileParameters.get(ProfileParams.GRID_SIZE.getValue())));
+            if(Objects.nonNull(profileParameters.get(ProfileParams.TRAINING_DATA_LABELS.getValue()))){
+                profile.setTrainingDataLabels(Arrays.asList(profileParameters.get(ProfileParams.TRAINING_DATA_LABELS.getValue()).split(LIST_SEPARATOR)));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -80,16 +83,19 @@ public class SettingsUtils {
         File file = null;
         try{
             if(settings.getLastSelectedProfile().equals(DEFAULT_PROFILE)){
-                file = new File("C:\\Users\\Ithilgore\\Desktop\\Project_Corak\\src\\main\\resources\\profiles\\default_profile.txt");
-                file.createNewFile();
-                FileWriter fileWriter = new FileWriter(file);
-                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-                bufferedWriter.write(SettingParams.LAST_SELECTED_PROFILE.getValue()+":"+DEFAULT_PROFILE+NEW_LINE);
-                bufferedWriter.write(ProfileParams.APP_WIDTH.getValue()+":"+"800"+NEW_LINE);
-                bufferedWriter.write(ProfileParams.APP_HEIGHT.getValue()+":"+"600"+NEW_LINE);
-                bufferedWriter.write(ProfileParams.GRID_SIZE.getValue()+":"+"32"+NEW_LINE);
-                bufferedWriter.flush();
-                fileWriter.close();
+                file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\default_profile.txt");
+                if(!file.exists()){
+                    file.createNewFile();
+                    FileWriter fileWriter = new FileWriter(file);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(SettingParams.LAST_SELECTED_PROFILE.getValue()+":"+DEFAULT_PROFILE+NEW_LINE);
+                    bufferedWriter.write(ProfileParams.APP_WIDTH.getValue()+":"+"800"+NEW_LINE);
+                    bufferedWriter.write(ProfileParams.APP_HEIGHT.getValue()+":"+"600"+NEW_LINE);
+                    bufferedWriter.write(ProfileParams.GRID_SIZE.getValue()+":"+"32"+NEW_LINE);
+                    bufferedWriter.write(ProfileParams.TRAINING_DATA_LABELS.getValue()+":"+NEW_LINE);
+                    bufferedWriter.flush();
+                    fileWriter.close();
+                }
             }else{
                 file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\"+settings.getLastSelectedProfile()+".txt");
             }
@@ -103,7 +109,31 @@ public class SettingsUtils {
 
     }
 
-    public static void saveProfile(){
-
+    public static void saveProfile(Settings settings, Profile profile){
+        File file;
+        try{
+            if(settings.getLastSelectedProfile().equals(DEFAULT_PROFILE)){
+                file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\default_profile.txt");
+            }else{
+                file = new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources\\profiles\\"+settings.getLastSelectedProfile()+".txt");
+            }
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(SettingParams.LAST_SELECTED_PROFILE.getValue()+":"+DEFAULT_PROFILE+NEW_LINE);
+            bufferedWriter.write(ProfileParams.APP_WIDTH.getValue()+":"+"800"+NEW_LINE);
+            bufferedWriter.write(ProfileParams.APP_HEIGHT.getValue()+":"+"600"+NEW_LINE);
+            bufferedWriter.write(ProfileParams.GRID_SIZE.getValue()+":"+"32"+NEW_LINE);
+            bufferedWriter.write(ProfileParams.TRAINING_DATA_LABELS.getValue()+":");
+            if(!profile.getTrainingDataLabels().isEmpty()){
+                String labels = StringUtils.join(profile.getTrainingDataLabels(),",");
+                bufferedWriter.write(labels+NEW_LINE);
+            }else{
+                bufferedWriter.write(NEW_LINE);
+            }
+            bufferedWriter.flush();
+            fileWriter.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
