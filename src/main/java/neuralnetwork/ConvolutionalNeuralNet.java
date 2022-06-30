@@ -2,12 +2,16 @@ package neuralnetwork;
 
 import lombok.Getter;
 import lombok.Setter;
+import mnistreader.MnistMatrix;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 @Setter
 public class ConvolutionalNeuralNet {//convolution > RELU > Max pooling > neuralNet
 
     //private int filterNumber;
+    private float[][][] inputs;
     private float[][][][] filterValue;//layer,amount in layer, y, x
     private NeuralNet fullyConnectedNLayer;
 
@@ -17,7 +21,25 @@ public class ConvolutionalNeuralNet {//convolution > RELU > Max pooling > neural
 
     public ConvolutionalNeuralNet(int depth, int filterNumber, int filterYSize, int filterXSize, int[] neuralNetStructure){
         filterValue = new float[depth][filterNumber][filterYSize][filterXSize];
+        initRandomFilterValues();
         fullyConnectedNLayer = new NeuralNet(neuralNetStructure);
+    }
+
+    public void train(float learningRate, MnistMatrix[] trainingData){
+        inputs = new float[1][][];
+        for (int i = 0; i < trainingData.length; i++) {
+            inputs[0] = trainingData[i].getData();
+            feedForward(inputs);
+            backPropagation();
+        }
+    }
+
+    private void feedForward(float[][][] inputs){
+
+    }
+
+    private void backPropagation(){
+
     }
 
     public float[][][] convolution(byte[][][] byteArray, int layer, int strideSize){//depth,width,lenght of data
@@ -97,6 +119,18 @@ public class ConvolutionalNeuralNet {//convolution > RELU > Max pooling > neural
         return max;
     }
 
+    private void initRandomFilterValues(){
+        for (int i = 0; i < filterValue.length; i++) {
+            for (int j = 0; j < filterValue[i].length; j++) {
+                for (int k = 0; k < filterValue[i][j].length; k++) {
+                    for (int l = 0; l < filterValue[i][j][k].length; l++) {
+                        filterValue[i][j][k][l] = ThreadLocalRandom.current().nextFloat();
+                    }
+                }
+            }
+        }
+    }
+
     /*public float[][] pooling(float[][] values, int poolingSize, int poolingStep){
         float[][] poolingArray = new float[values.length/poolingSize][];
 
@@ -126,13 +160,4 @@ public class ConvolutionalNeuralNet {//convolution > RELU > Max pooling > neural
         }
         return max;
     }*/
-
-    public float reluActivation(float value){
-        if(value > 0){
-            return value;
-        }else{
-            return 0f;
-        }
-    }
-
 }

@@ -19,6 +19,7 @@ public class ConvolutionalNeuralNetTest {
 
     private float[][][][] filter;
     private float[][][] values;
+    private ConvolutionalNeuralNet convolutionalNeuralNet;
 
     @Test
     public void convolutionTest() {
@@ -91,7 +92,7 @@ public class ConvolutionalNeuralNetTest {
             for (int j = 0; j < test[i].length; j++) {
                 for (int k = 0; k < test[i][j].length; k++) {
                     for (int l = 0; l < test[i][j][k].length; l++) {
-                        test[i][j][k][l] = convolutionalNeuralNet.reluActivation(test[i][j][k][l]);
+                        test[i][j][k][l] = NeuralNetworkUtils.relu(test[i][j][k][l]);
                     }
                 }
             }
@@ -108,6 +109,12 @@ public class ConvolutionalNeuralNetTest {
         long end1 = System.nanoTime();
         System.out.println(Arrays.toString(neuralNet.getOutputsFromLastLayer()));
         System.out.println(end1 - start1);
+    }
+
+    @Test
+    public void mnistTest(){
+        int[] neuralNetStructure = new int[]{};
+        convolutionalNeuralNet = new ConvolutionalNeuralNet(1,2,3,3,neuralNetStructure);
     }
 
     private void createFilter() {

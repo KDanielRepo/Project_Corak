@@ -15,6 +15,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class NeuralNetworkUtils {
     private static final float LAMBDA = 1.0507f;
     private static final float ALPHA = 1.6732f;
+    private static final String WEIGHT_SEPARATOR = ";";
+    private static final String NEURON_SEPARATOR = "|";
+    private static final String LAYER_SEPARATOR = "/";
+    private static final String BIAS_AND_WEIGHT_SEPARATOR = "%";
+    private static final String BIAS_LAYER_SEPARATOR = "@";
+    private static final String BIAS_WEIGHT_SEPARATOR = "$";
 
     public static byte[][] convertBinaryImageToInputs(BufferedImage image) {
         byte[][] array = new byte[image.getHeight()][image.getWidth()];
@@ -50,16 +56,26 @@ public class NeuralNetworkUtils {
         return array;
     }
 
-    public static void exportWeightsToFile(float[][] weights) {
+    public static void exportWeightsAndBiasesToFile(float[][][] weights, float[][] biases) {
         try {
             String exportString = "";
             for (int i = 0; i < weights.length; i++) {
                 for (int j = 0; j < weights[i].length; j++) {
-                    exportString = exportString.concat(weights[i][j] + ";");
+                    for (int k = 0; k < weights[i][j].length; k++) {
+                        exportString = exportString.concat(weights[i][j][k] + WEIGHT_SEPARATOR);
+                    }
+                    exportString = exportString.concat(NEURON_SEPARATOR);
                 }
-                exportString = exportString.concat("|");
+                exportString = exportString.concat(LAYER_SEPARATOR);
             }
-            File file = new File("./trainedWeights" + ZonedDateTime.now() + ".txt");
+            exportString = exportString.concat(BIAS_AND_WEIGHT_SEPARATOR);
+            for (int i = 0; i < biases.length; i++) {
+                for (int j = 0; j < biases[i].length; j++) {
+                    exportString = exportString.concat(biases[i][j] + BIAS_WEIGHT_SEPARATOR);
+                }
+                exportString = exportString.concat(BIAS_LAYER_SEPARATOR);
+            }
+            File file = new File("trainedWeights.txt");
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -81,16 +97,40 @@ public class NeuralNetworkUtils {
             if (ret == JFileChooser.APPROVE_OPTION) {
                 File file = jFileChooser.getSelectedFile();
                 Scanner scanner = new Scanner(file);
-                AtomicInteger indexX = new AtomicInteger(0);
-                AtomicInteger indexY = new AtomicInteger(0);
-                Arrays.stream(scanner.nextLine().split("\\|")).forEach(line -> {
-                    Arrays.stream(line.split(";")).forEach(flo -> {
-                        //neuralNet.getWeights()[indexY.get()][indexX.get()] = Float.parseFloat(flo);
-                        indexX.getAndIncrement();
-                    });
-                    indexX.set(0);
-                    indexY.getAndIncrement();
+                AtomicInteger indexLayer = new AtomicInteger(0);
+                AtomicInteger indexNeuron = new AtomicInteger(0);
+                AtomicInteger indexWeight = new AtomicInteger(0);
+                AtomicInteger weightsAndBiasesIndex = new AtomicInteger(0);
+                AtomicInteger biasLayerIndex = new AtomicInteger(0);
+                AtomicInteger biasIndex = new AtomicInteger(0);
+                Arrays.stream(scanner.nextLine().split("%")).forEach(weightsAndBiases->{
+                    if (weightsAndBiasesIndex.get() == 0){
+                        Arrays.stream(weightsAndBiases.split("/")).forEach(layer->{
+                            Arrays.stream(layer.split("\\|")).forEach(neuron->{
+                                Arrays.stream(neuron.split(";")).forEach(weight->{
+                                    neuralNet.getWeights()[indexLayer.get()][indexNeuron.get()][indexWeight.get()] = Float.parseFloat(weight);
+                                    indexWeight.getAndIncrement();
+                                });
+                                indexWeight.set(0);
+                                indexNeuron.getAndIncrement();
+                            });
+                            indexWeight.set(0);
+                            indexNeuron.set(0);
+                            indexLayer.getAndIncrement();
+                        });
+                        weightsAndBiasesIndex.getAndIncrement();
+                    }else{
+                        Arrays.stream(weightsAndBiases.split("@")).forEach(biasLayer->{
+                            Arrays.stream(biasLayer.split("\\$")).forEach(bias->{
+                                neuralNet.getBias()[biasLayerIndex.get()][biasIndex.get()] = Float.parseFloat(bias);
+                                biasIndex.getAndIncrement();
+                            });
+                            biasIndex.set(0);
+                            biasLayerIndex.getAndIncrement();
+                        });
+                    }
                 });
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,17 +199,12 @@ public class NeuralNetworkUtils {
         return (float) (answer * Math.log(value));
     }
 
-    public static float[] softmax(float[] neuronValues) {
-        double[] temp = new double[neuronValues.length];
-        float[] outputs = new float[neuronValues.length];
+    public static float softmax(float value, float[] neuronValues) {
+        float total = 0f;
         for (int i = 0; i < neuronValues.length; i++) {
-            temp[i] = neuronValues[i];
+            total+=Math.exp(neuronValues[i]);
         }
-        double total = Arrays.stream(temp).map(Math::exp).sum();
-        for (int i = 0; i < outputs.length; i++) {
-            outputs[i] = (float) (Math.exp(neuronValues[i]) / total);
-        }
-        return outputs;
+        return (float)(Math.exp(value)/total);
     }
 
     public static float softmaxDerivative(float[] neuronValues) {

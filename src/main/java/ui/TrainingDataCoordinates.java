@@ -10,4 +10,12 @@ public class TrainingDataCoordinates {
     private int startY;
     private int endX;
     private int endY;
+
+    @Override
+    public String toString() {
+        return "startX=" + startX +
+                ", startY=" + startY +
+                ", endX=" + endX +
+                ", endY=" + endY;
+    }
 }

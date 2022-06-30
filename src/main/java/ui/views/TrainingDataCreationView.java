@@ -21,6 +21,10 @@ import ui.TrainingDataCoordinates;
 import ui.abstracts.AbstractView;
 import utils.ScreenCaptureUtils;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -55,10 +59,13 @@ public class TrainingDataCreationView extends AbstractView {
 
 
     private ComboBox<String> labelSelection;
+    private ComboBox<TrainingDataCoordinates> existingLabelSelection;
     private ObservableList<String> labelSelectionList;
+    private ObservableList<TrainingDataCoordinates> existingLabelSelectionList;
     private ZoomableView zoomableView;
 
     private Map<TrainingDataCoordinates, String> trainingDataCoordinatesMap;
+    private List<Node> nodes;
 
     int startX;
     int startY;
@@ -72,10 +79,10 @@ public class TrainingDataCreationView extends AbstractView {
     }
 
     private void init(Profile profile) {
+        trainingDataCoordinatesMap = new HashMap<>();
         initControls(profile);
         initControlsLogic(profile);
         initGraphics(profile);
-        trainingDataCoordinatesMap = new HashMap<>();
 
         this.setCenter(zoomableView);
         this.setRight(toolBar);
@@ -98,33 +105,50 @@ public class TrainingDataCreationView extends AbstractView {
         } else {
             labelSelectionList = FXCollections.observableArrayList();
         }
+        existingLabelSelectionList = FXCollections.observableArrayList();
         labelSelection = new ComboBox<>(labelSelectionList);
+        existingLabelSelection = new ComboBox<>(existingLabelSelectionList);
         toolBar.getChildren().addAll(labelSelection, clearSelectedCoordinatesButton, generateTrainingDataButton,
-                selectImageButton, selectImageFolderButton, addCoordinatesButton, addNewLabelButton);
+                selectImageButton, selectImageFolderButton, addCoordinatesButton, addNewLabelButton, existingLabelSelection);
 
     }
 
     private void initControlsLogic(Profile profile) {
         selectImageButton.setOnAction(e -> {
-
+            try {
+                JFileChooser jFileChooser = new JFileChooser();
+                FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter("Images", "jpg", "png");
+                jFileChooser.setCurrentDirectory(new File("C:\\Users\\Daniel\\IdeaProjects\\Project_Corak\\src\\main\\resources"));
+                jFileChooser.setFileFilter(fileNameExtensionFilter);
+                int ret = jFileChooser.showOpenDialog(null);
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File file = jFileChooser.getSelectedFile();
+                    Image backgroundImage = SwingFXUtils.toFXImage(ImageIO.read(file), null);
+                    gc.drawImage(backgroundImage, 0, 0);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
         selectImageFolderButton.setOnAction(e -> {
 
         });
 
-        addCoordinatesButton.setOnAction(e->{
+        addCoordinatesButton.setOnAction(e -> {
             addingCoordinates = !addingCoordinates;
-            if(addingCoordinates){
+            if (addingCoordinates) {
                 addCoordinatesButton.setText(STOP_ADD_COORDINATES_BUTTON_NAME);
                 zoomableView.setPannable(false);
-            }else{
+            } else {
                 addCoordinatesButton.setText(START_ADD_COORDINATES_BUTTON_NAME);
                 zoomableView.setPannable(true);
-                trainingDataCoordinatesMap.put(new TrainingDataCoordinates(startX, startY, endX, endY), labelSelection.getSelectionModel().getSelectedItem());
+                TrainingDataCoordinates trainingDataCoordinates = new TrainingDataCoordinates(startX, startY, endX, endY);
+                trainingDataCoordinatesMap.put(trainingDataCoordinates, trainingDataCoordinates.toString());
+                existingLabelSelection.getItems().add(trainingDataCoordinates);
                 gcp.setStroke(Color.RED);
                 gcp.strokeRect(startX, startY, endX - startX, endY - startY);
-                labelGc.clearRect(0,0,profile.getSelectedAppWidth(),profile.getSelectedAppHeight());
+                labelGc.clearRect(0, 0, profile.getSelectedAppWidth(), profile.getSelectedAppHeight());
             }
         });
 
@@ -139,11 +163,12 @@ public class TrainingDataCreationView extends AbstractView {
                 profile.getTrainingDataLabels().add(label);
             });
         });
+
         editExistingLabelButton.setOnAction(e -> {
             TextInputDialog editLabelDialog = new TextInputDialog();
             editLabelDialog.setTitle("Edit label");
             editLabelDialog.setHeaderText("Edit label");
-            editLabelDialog.setContentText("Edit selected label ("+labelSelection.getSelectionModel().getSelectedItem()+") for training data: ");
+            editLabelDialog.setContentText("Edit selected label (" + labelSelection.getSelectionModel().getSelectedItem() + ") for training data: ");
             Optional<String> result = editLabelDialog.showAndWait();
             result.ifPresent(label -> {
                 labelSelection.getItems().add(label);
@@ -154,7 +179,7 @@ public class TrainingDataCreationView extends AbstractView {
     }
 
     private void initGraphics(Profile profile) {
-        List<Node> nodes = new ArrayList<>();
+        nodes = new ArrayList<>();
         gridSize = profile.getSelectedGridSize();
 
         background = new Canvas(profile.getSelectedAppWidth(), profile.getSelectedAppHeight());
@@ -176,30 +201,15 @@ public class TrainingDataCreationView extends AbstractView {
             labelForeground.toFront();
             gc.drawImage(backgroundImage, 0, 0);
             drawGridOnImage();
-            /*foreground.setOnMouseClicked(e -> {
-                if(addingCoordinates){
-                    if (MouseButton.PRIMARY == e.getButton()) {
-                        int x = ((int) (e.getX() / gridSize)) * gridSize;
-                        int y = ((int) (e.getY() / gridSize)) * gridSize;
-                        gcp.setFill(Color.RED);
-                        gcp.fillRect(x, y, gridSize, gridSize);
-                    } else if (MouseButton.SECONDARY == e.getButton()) {
-                        int x = ((int) (e.getX() / gridSize)) * gridSize;
-                        int y = ((int) (e.getY() / gridSize)) * gridSize;
-                        gcp.clearRect(x, y, gridSize, gridSize);
-                        drawGridOnImage();
-                    }
-                }
-            });*/
-            labelForeground.setOnDragDetected(e->{
-                if(addingCoordinates){
+            labelForeground.setOnDragDetected(e -> {
+                if (addingCoordinates) {
                     startX = ((int) (e.getX() / gridSize)) * gridSize;
                     startY = ((int) (e.getY() / gridSize)) * gridSize;
                 }
             });
-            labelForeground.setOnMouseDragged(e->{
-                if(addingCoordinates){
-                    labelGc.clearRect(0,0,profile.getSelectedAppWidth(),profile.getSelectedAppHeight());
+            labelForeground.setOnMouseDragged(e -> {
+                if (addingCoordinates) {
+                    labelGc.clearRect(0, 0, profile.getSelectedAppWidth(), profile.getSelectedAppHeight());
                     //drawGridOnImage();
                     endX = ((int) (e.getX() / gridSize)) * gridSize;
                     endY = ((int) (e.getY() / gridSize)) * gridSize;
