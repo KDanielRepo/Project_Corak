@@ -1,5 +1,5 @@
-import mnistreader.MnistDataReader;
-import mnistreader.MnistMatrix;
+import datareaders.mnistreader.MnistDataReader;
+import datareaders.mnistreader.MnistMatrix;
 import neuralnetwork.NeuralNet;
 import neuralnetwork.enums.ActivationFunctionType;
 import neuralnetwork.enums.ErrorCalculationType;

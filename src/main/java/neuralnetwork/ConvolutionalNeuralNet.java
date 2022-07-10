@@ -2,7 +2,7 @@ package neuralnetwork;
 
 import lombok.Getter;
 import lombok.Setter;
-import mnistreader.MnistMatrix;
+import datareaders.mnistreader.MnistMatrix;
 
 import java.util.concurrent.ThreadLocalRandom;
 

@@ -1,5 +1,5 @@
-import mnistreader.MnistDataReader;
-import mnistreader.MnistMatrix;
+import datareaders.mnistreader.MnistDataReader;
+import datareaders.mnistreader.MnistMatrix;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

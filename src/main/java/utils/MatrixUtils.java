@@ -102,6 +102,41 @@ public class MatrixUtils {
         return result;
     }
 
+    public static float[][] getPartOfArray(float[][] matrix, int startX, int startY, int endX, int endY){
+        float[][] result = new float[endY-startY][endX-startX];
+        int xIndex = 0;
+        int yIndex = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                if((i>= startY && i<endY) && (j>=startX && j<endX)){
+                    result[yIndex][xIndex] = matrix[i][j];
+                    xIndex++;
+                    if(xIndex==result[0].length){
+                        xIndex = 0;
+                        yIndex++;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public static float convolution(float[][] matrix, float[][] secondMatrix){
+        float value = 0f;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                value += matrix[i][j] * secondMatrix[i][j];
+            }
+        }
+        return value;
+    }
+
+    public static int getArraySize(float[][] matrix){
+        return matrix.length * matrix[0].length;
+    }
+
+
+
 
     /*Assuming that given array is symmetrical*/
     public static float[] multiArrayToSimpleArray(float[][] matrix){

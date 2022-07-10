@@ -1,7 +1,7 @@
 package neuralnetwork;
 
 import lombok.Data;
-import mnistreader.MnistMatrix;
+import datareaders.mnistreader.MnistMatrix;
 import neuralnetwork.enums.ActivationFunctionType;
 import neuralnetwork.enums.ErrorCalculationType;
 import ui.UserInterface;

@@ -1,4 +1,4 @@
-package mnistreader;
+package datareaders.mnistreader;
 
 import java.util.Arrays;
 
