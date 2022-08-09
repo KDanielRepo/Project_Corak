@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class MnistMatrix {
 
-    private float [][] data;
+    private double [][] data;
 
     private int nRows;
     private int nCols;
@@ -15,18 +15,18 @@ public class MnistMatrix {
         this.nRows = nRows;
         this.nCols = nCols;
 
-        data = new float[nRows][nCols];
+        data = new double[nRows][nCols];
     }
 
-    public float[][] getData() {
+    public double[][] getData() {
         return data;
     }
 
-    public float getValue(int r, int c) {
+    public double getValue(int r, int c) {
         return data[r][c];
     }
 
-    public void setValue(int row, int col, float value) {
+    public void setValue(int row, int col, double value) {
         data[row][col] = value;
     }
 
@@ -46,10 +46,10 @@ public class MnistMatrix {
         return nCols;
     }
 
-    public float[] getAnswer(){
-        float[] answers = new float[10];
-        Arrays.fill(answers, 0f);
-        answers[label] = 1f;
+    public double[] getAnswer(){
+        double[] answers = new double[10];
+        Arrays.fill(answers, 0d);
+        answers[label] = 1d;
         return answers;
     }
 

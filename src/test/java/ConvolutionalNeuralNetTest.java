@@ -17,8 +17,8 @@ import java.util.concurrent.ThreadLocalRandom;
 @RunWith(JUnit4.class)
 public class ConvolutionalNeuralNetTest {
 
-    private float[][][][] filter;
-    private float[][][] values;
+    private double[][][][] filter;
+    private double[][][] values;
     private ConvolutionalNeuralNet convolutionalNeuralNet;
 
     @Test
@@ -37,7 +37,7 @@ public class ConvolutionalNeuralNetTest {
         long start1 = System.nanoTime();
         ConvolutionalNeuralNet neuralNet = new ConvolutionalNeuralNet();
         neuralNet.setFilterValue(filter);
-        float[][][] a = neuralNet.convolution(bytes, 0, 1);
+        double[][][] a = neuralNet.convolution(bytes, 0, 1);
         long end1 = System.nanoTime();
         System.out.println(end1 - start1);
         //System.out.println("______________________________________________");
@@ -60,7 +60,7 @@ public class ConvolutionalNeuralNetTest {
         createValues();
         ConvolutionalNeuralNet neuralNet = new ConvolutionalNeuralNet();
         long start1 = System.nanoTime();
-        float[][][] after = neuralNet.pooling(values, 2);
+        double[][][] after = neuralNet.pooling(values, 2);
         long end1 = System.nanoTime();
         System.out.println(end1 - start1);
 
@@ -78,8 +78,8 @@ public class ConvolutionalNeuralNetTest {
 
         BufferedImage bufferedImage = ImageIO.read(new File("C:\\Users\\Ithilgore\\Desktop\\rbgTest.png"));
 
-        float[][][][] test = new float[filter.length][][][];
-        float[][][][] testPool = new float[filter.length][][][];
+        double[][][][] test = new double[filter.length][][][];
+        double[][][][] testPool = new double[filter.length][][][];
         for (int i = 0; i < filter.length; i++) {
             if(i==0){
                 byte[][][] a = new byte[1][][];
@@ -99,7 +99,7 @@ public class ConvolutionalNeuralNetTest {
             testPool[i] = convolutionalNeuralNet.pooling(test[i],2);
         }
         //System.out.println(Arrays.deepToString(testPool[filter.length-1]));
-        float[] x = MatrixUtils.multiArrayToSimpleArray(testPool[filter.length-1]);
+        double[] x = MatrixUtils.multiArrayToSimpleArray(testPool[filter.length-1]);
 
         int[] structure = new int[]{x.length, 90, 45, 20, 10};
         NeuralNet neuralNet = new NeuralNet(structure);
@@ -118,7 +118,7 @@ public class ConvolutionalNeuralNetTest {
     }
 
     private void createFilter() {
-        filter = new float[1][3][3][3];
+        filter = new double[1][3][3][3];
         for (int i = 1; i < filter[0].length+1; i++) {
             for (int j = 1; j < filter[0][i-1].length+1; j++) {
                 for (int k = 1; k < filter[0][i-1][j-1].length+1; k++) {
@@ -129,7 +129,7 @@ public class ConvolutionalNeuralNetTest {
     }
 
     private void createFinalFilter() {
-        filter = new float[2][8][3][3];
+        filter = new double[2][8][3][3];
         for (int i = 0; i < filter.length; i++) {
             for (int j = 0; j < filter[i].length; j++) {
                 for (int k = 0; k < filter[i][j].length; k++) {
@@ -152,7 +152,7 @@ public class ConvolutionalNeuralNetTest {
     }
 
     private void createValues() {
-        values = new float[3][8][8];
+        values = new double[3][8][8];
         for (int i = 0; i < values.length; i++) {
             for (int j = 0; j < values[i].length; j++) {
                 for (int k = 0; k < values[i][j].length; k++) {

@@ -16,12 +16,12 @@ import java.util.concurrent.ThreadLocalRandom;
 @Getter
 @Setter
 public class ConvolutionalNeuralNetwork {
-    private float[][][] inputs; //channels, y, x
-    private float[][][][] filters; //layer, number, y, x
-    private float[][][] poolingLayers; //layer, y, x
+    private double[][][] inputs; //channels, y, x
+    private double[][][][] filters; //layer, channels, y, x
+    private double[][][] poolingLayers; //layer, y, x
     private int[][][] poolingCoordinates; //layer, y, x
-    private float[][][][] convolutionOutputs; //layer, channels, y, x
-    private float[][] bias; //layer, value
+    private double[][][][] convolutionOutputs; //layer, channels, y, x
+    private double[][] bias; //layer, value
     private NeuralNet neuralNet;
     private PoolingType poolingType;
     private PaddingType paddingType;
@@ -45,7 +45,7 @@ public class ConvolutionalNeuralNetwork {
         neuralNet = new NeuralNet(neuralNetStructure);
     }
 
-    public void train(float learningRate) {
+    public void train(double learningRate) {
         validator.validate(this);
         setDefaultValuesIfNull();
     }
@@ -78,7 +78,7 @@ public class ConvolutionalNeuralNetwork {
         }
     }
 
-    private void selectOperationByPoolingType(int layer, float[][] matrix){
+    private void selectOperationByPoolingType(int layer, double[][] matrix){
         switch (poolingType){
             case MAX:
                 maxPooling(layer, matrix);
@@ -88,6 +88,10 @@ public class ConvolutionalNeuralNetwork {
             default:
                throw new RuntimeException();
         }
+    }
+
+    private void selectOperationByActivationType(){
+
     }
 
     public void feedForward() {
@@ -132,24 +136,24 @@ public class ConvolutionalNeuralNetwork {
     private void initRandomFilters(int numberOfLayers, int numberOfInputChannels, int filterSize) {
         this.filterSize = filterSize;
         if (numberOfInputChannels != 1) {
-            filters = new float[numberOfLayers][][][];
+            filters = new double[numberOfLayers][][][];
             for (int i = 0; i < filters.length; i++) {
                 if (i == 0) {
-                    float[][][] innerLayer = new float[numberOfInputChannels][filterSize][filterSize];
+                    double[][][] innerLayer = new double[numberOfInputChannels][filterSize][filterSize];
                     filters[i] = innerLayer;
                 } else {
-                    float[][][] innerLayer = new float[1][filterSize][filterSize];
+                    double[][][] innerLayer = new double[1][filterSize][filterSize];
                     filters[i] = innerLayer;
                 }
             }
         } else {
-            filters = new float[numberOfLayers][numberOfInputChannels][filterSize][filterSize];
+            filters = new double[numberOfLayers][numberOfInputChannels][filterSize][filterSize];
         }
         for (int i = 0; i < filters.length; i++) {
             for (int j = 0; j < filters[i].length; j++) {
                 for (int k = 0; k < filters[i][j].length; k++) {
                     for (int l = 0; l < filters[i][j][k].length; l++) {
-                        filters[i][j][k][l] = ThreadLocalRandom.current().nextFloat();
+                        filters[i][j][k][l] = ThreadLocalRandom.current().nextDouble();
                     }
                 }
             }
@@ -157,14 +161,14 @@ public class ConvolutionalNeuralNetwork {
     }
 
     private void initBias(int numberOfLayers) {
-        bias = new float[numberOfLayers][1];
+        bias = new double[numberOfLayers][1];
         for (int i = 0; i < bias.length; i++) {
             Arrays.fill(bias[i], 1f);
         }
     }
 
     private void initConvolutionOutputs(int numberOfLayers, int numberOfInputChannels, List<ConvolutionalLayerType> operationOrder) {
-        convolutionOutputs = new float[numberOfLayers][][][];
+        convolutionOutputs = new double[numberOfLayers][][][];
         if (numberOfInputChannels != 1) {
             for (int i = 0; i < convolutionOutputs.length; i++) {
                 for(ConvolutionalLayerType operation : operationOrder){
@@ -178,17 +182,17 @@ public class ConvolutionalNeuralNetwork {
                 if (i == 0) {
                     int outputWidth = getOutputSizeByPadding(inputs[0][0].length);
                     int outputHeight = getOutputSizeByPadding(inputs[0].length);
-                    float[][][] channels = new float[numberOfInputChannels][outputHeight][outputWidth];
+                    double[][][] channels = new double[numberOfInputChannels][outputHeight][outputWidth];
                     convolutionOutputs[i] = channels;
                 } else {
                     int outputWidth = getOutputSizeByPadding(inputs[0][0].length);
                     int outputHeight = getOutputSizeByPadding(inputs[0].length);
-                    float[][][] channels = new float[1][outputHeight][outputWidth];
+                    double[][][] channels = new double[1][outputHeight][outputWidth];
                     convolutionOutputs[i] = channels;
                 }
             }
         } else {
-            float[][][] channels = new float[1][][];
+            double[][][] channels = new double[1][][];
 
         }
     }
@@ -200,8 +204,8 @@ public class ConvolutionalNeuralNetwork {
         }
     }
 
-    public float maxPooling(int layer, float[][] matrix){
-        float max = Float.NEGATIVE_INFINITY;
+    public double maxPooling(int layer, double[][] matrix){
+        double max = Double.NEGATIVE_INFINITY;
         int width = 0;
         int height = 0;
         for (int i = 0; i < matrix.length; i++) {
@@ -218,8 +222,8 @@ public class ConvolutionalNeuralNetwork {
         return max;
     }
 
-    public float averagePooling(float[][] matrix){
-        float sum = 0f;
+    public double averagePooling(double[][] matrix){
+        double sum = 0f;
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
                 sum += matrix[i][j];

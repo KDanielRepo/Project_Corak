@@ -10,7 +10,9 @@ import utils.MatrixUtils;
 import utils.NeuralNetworkUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RunWith(JUnit4.class)
@@ -21,8 +23,8 @@ public class NeuralNetworkTest {
     public void feedForwardTest(){
         long start1 = System.nanoTime();
         createNeuralNet2R();
-        float[] inputs = new float[]{1,1};
-        float[][][] weights = new float[][][]{ {{4.11264f,-6.235361f},{-6.546086f,8.805063f}}, {{10.010825f},{11.4009905f}}};
+        double[] inputs = new double[]{1,1};
+        double[][][] weights = new double[][][]{ {{4.11264f,-6.235361f},{-6.546086f,8.805063f}}, {{10.010825f},{11.4009905f}}};
         neuralNet.setWeights(weights);
         neuralNet.setInputValues(inputs);
         neuralNet.feedForward();
@@ -37,9 +39,9 @@ public class NeuralNetworkTest {
     @Test
     public void weightedSumTest(){
         createNeuralNetWeighted();
-        float[] inputs = new float[]{3,5,7};
-        float[][][] weightsNew = new float[][][]{{{0.5f,0.3f,0.2f},{0.6f,0.7f,0.8f},{0.3f,0.4f,0.5f},{0.2f,0.3f,0.4f}},{{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f}},{{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f}}};
-        float[][][] weightsOld = new float[][][]{{},{},{}};
+        double[] inputs = new double[]{3,5,7};
+        double[][][] weightsNew = new double[][][]{{{0.5f,0.3f,0.2f},{0.6f,0.7f,0.8f},{0.3f,0.4f,0.5f},{0.2f,0.3f,0.4f}},{{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f}},{{0.5f,0.6f,0.7f,0.8f},{0.5f,0.6f,0.7f,0.8f}}};
+        double[][][] weightsOld = new double[][][]{{},{},{}};
         neuralNet.setWeights(weightsNew);
         neuralNet.setInputValues(inputs);
         neuralNet.feedForward();
@@ -49,11 +51,11 @@ public class NeuralNetworkTest {
     @Test
     public void backPropagationTest(){
         createNeuralNet2R();
-        float[] inputs = new float[]{1,1};
-        float[] answers = new float[]{0};
-        float[][][] weights = new float[][][]{ {{-1.1182877f,8.255283f},{-1.1086226f,8.264524f}}, {{13.6292515f},{8.268224f}}};
-        float[][] bias = new float[][]{{1.0f, -3.3691354f},{-12.8256035f}};
-        //float[][][] weights = new float[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
+        double[] inputs = new double[]{1,1};
+        double[] answers = new double[]{0};
+        double[][][] weights = new double[][][]{ {{-1.1182877f,8.255283f},{-1.1086226f,8.264524f}}, {{13.6292515f},{8.268224f}}};
+        double[][] bias = new double[][]{{1.0d, -3.3691354f},{-12.8256035f}};
+        //double[][][] weights = new double[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
         neuralNet.setWeights(weights);
         neuralNet.setBias(bias);
         neuralNet.setInputValues(inputs);
@@ -70,9 +72,9 @@ public class NeuralNetworkTest {
     @Test
     public void calculateGradientTest(){
         createNeuralNet2R();
-        float[] inputs = new float[]{1,1};
-        float[] answers = new float[]{0};
-        float[][][] weights = new float[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
+        double[] inputs = new double[]{1,1};
+        double[] answers = new double[]{0};
+        double[][][] weights = new double[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
         neuralNet.setWeights(weights);
         neuralNet.setInputValues(inputs);
         neuralNet.feedForward();
@@ -85,9 +87,9 @@ public class NeuralNetworkTest {
         createNeuralNet2R();
         neuralNet.setErrorCalculationType(ErrorCalculationType.MEAN_SQUARE);
         neuralNet.setActivationFunctionType(ActivationFunctionType.SIGMOID);
-        float[][] data = new float[][]{{1,1},{0,1},{1,0},{0,0}};
-        float[][] answers = new float[][]{{0},{1},{1},{0}};
-        //float[][][] weights = new float[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
+        double[][] data = new double[][]{{1,1},{0,1},{1,0},{0,0}};
+        double[][] answers = new double[][]{{0},{1},{1},{0}};
+        //double[][][] weights = new double[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
         //neuralNetRefactor.setWeights(weights);
         double start1 = System.nanoTime();
         neuralNet.train(50000, 0.1f, data, answers);
@@ -121,9 +123,9 @@ public class NeuralNetworkTest {
         createClassificationNeuralNet();
         neuralNet.setErrorCalculationType(ErrorCalculationType.MEAN_SQUARE);
         neuralNet.setActivationFunctionType(ActivationFunctionType.SIGMOID);
-        float[][] data = new float[][]{{1,1},{0,1},{1,0},{0,0}};
-        float[][] answers = new float[][]{{0},{1},{1},{0}};
-        //float[][][] weights = new float[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
+        double[][] data = new double[][]{{1,1},{0,1},{1,0},{0,0}};
+        double[][] answers = new double[][]{{0},{1},{1},{0}};
+        //double[][][] weights = new double[][][]{ {{0.5f,1f},{0.3f,1f}}, {{0.8f},{0.7f}}};
         //neuralNetRefactor.setWeights(weights);
         double start1 = System.nanoTime();
         neuralNet.train(50000, 0.1f, data, answers);
@@ -158,18 +160,22 @@ public class NeuralNetworkTest {
         MnistMatrix[] testSet = MnistDataReader.readData("C:\\Users\\Daniel\\Downloads\\t10k-images.idx3-ubyte", "C:\\Users\\Daniel\\Downloads\\t10k-labels.idx1-ubyte");
         createMnistNeuralNet();
         double start1 = System.nanoTime();
-        neuralNet.train(0.2f, trainingSet);
+        neuralNet.train(0.4d, trainingSet);
         double end1 = System.nanoTime();
         System.out.println("time: "+((end1-start1) / 1000000000));
         NeuralNetworkUtils.exportWeightsAndBiasesToFile(neuralNet.getWeights(), neuralNet.getBias());
-        for (int i = 0; i < 10; i++) {
+        int accuracy = 0;
+        for (int i = 0; i < 1000; i++) {
             int random = ThreadLocalRandom.current().nextInt(0,testSet.length);
             neuralNet.setInputValues(MatrixUtils.multiArrayToSimpleArray(testSet[random].getData()));
             neuralNet.feedForward();
-            System.out.println(Arrays.toString(neuralNet.getOutputs()[neuralNet.getOutputs().length-1]));
+            if(neuralNet.printValuesFromOutputWithPercentages() == (testSet[random].getLabel())){
+                accuracy++;
+            }
+            System.out.print(neuralNet.printValuesFromOutputWithPercentages() + " : ");
             System.out.println(testSet[random].getLabel());
-
         }
+        System.out.println((double)accuracy/1000d);
     }
 
     @Test
@@ -190,7 +196,7 @@ public class NeuralNetworkTest {
     private void createNeuralNet2R(){
         int[] structure = new int[]{2,2,1};
 
-        //float[] inputs = new float[]{0.10f, 0.20f, 0.30f, 0.40f};
+        //double[] inputs = new double[]{0.10d, 0.20d, 0.30d, 0.40d};
         neuralNet = new NeuralNet(structure);
         //neuralNet.setInputValues(inputs);
     }
@@ -198,7 +204,7 @@ public class NeuralNetworkTest {
     private void createNeuralNetWeighted(){
         int[] structure = new int[]{3,4,4,2};
 
-        //float[] inputs = new float[]{0.10f, 0.20f, 0.30f, 0.40f};
+        //double[] inputs = new double[]{0.10d, 0.20d, 0.30d, 0.40d};
         neuralNet = new NeuralNet(structure);
         //neuralNet.setInputValues(inputs);
     }
@@ -216,8 +222,17 @@ public class NeuralNetworkTest {
         int[] structure = new int[]{784,32,10};
         //MnistDataReader.readData();
         neuralNet = new NeuralNet(structure);
+        neuralNet.setThreadNumber(12);
         neuralNet.setActivationFunctionType(ActivationFunctionType.SIGMOID);
         neuralNet.setOutputActivationFunctionType(ActivationFunctionType.SOFTMAX);
         neuralNet.setErrorCalculationType(ErrorCalculationType.CROSS_ENTROPY);
+    }
+
+    private List<String> getListOfMnistLabels(){
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            labels.add(Integer.toString(i));
+        }
+        return labels;
     }
 }

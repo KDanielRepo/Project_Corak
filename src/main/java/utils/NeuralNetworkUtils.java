@@ -7,14 +7,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NeuralNetworkUtils {
-    private static final float LAMBDA = 1.0507f;
-    private static final float ALPHA = 1.6732f;
+    private static final double LAMBDA = 1.0507f;
+    private static final double ALPHA = 1.6732f;
     private static final String WEIGHT_SEPARATOR = ";";
     private static final String NEURON_SEPARATOR = "|";
     private static final String LAYER_SEPARATOR = "/";
@@ -27,9 +29,9 @@ public class NeuralNetworkUtils {
         for (int i = 0; i < image.getWidth(); i++) {
             for (int j = 0; j < image.getHeight(); j++) {
                 int clr = image.getRGB(i, j);
-                int red = (clr & 0x00ff0000) >> 16;
-                int green = (clr & 0x0000ff00) >> 8;
-                int blue = clr & 0x000000ff;
+                int red = (clr & 0x00df0000) >> 16;
+                int green = (clr & 0x0000df00) >> 8;
+                int blue = clr & 0x000000df;
                 if (red > 20 || green > 20 || blue > 20) {
                     array[j][i] = 1;
                 } else {
@@ -40,23 +42,23 @@ public class NeuralNetworkUtils {
         return array;
     }
 
-    public static float[][][] convertRGBImageToInputs(BufferedImage image) {
-        float[][][] array = new float[3][image.getHeight()][image.getWidth()];
+    public static double[][][] convertRGBImageToInputs(BufferedImage image) {
+        double[][][] array = new double[3][image.getHeight()][image.getWidth()];
         for (int i = 0; i < image.getHeight(); i++) {
             for (int j = 0; j < image.getWidth(); j++) {
                 int clr = image.getRGB(i, j);
-                int red = (clr & 0x00ff0000) >> 16;
-                int green = (clr & 0x0000ff00) >> 8;
-                int blue = clr & 0x000000ff;
-                array[0][i][j] = (float) red / 255;
-                array[1][i][j] = (float) green / 255;
-                array[2][i][j] = (float) blue / 255;
+                int red = (clr & 0x00df0000) >> 16;
+                int green = (clr & 0x0000df00) >> 8;
+                int blue = clr & 0x000000df;
+                array[0][i][j] = (double) red / 255;
+                array[1][i][j] = (double) green / 255;
+                array[2][i][j] = (double) blue / 255;
             }
         }
         return array;
     }
 
-    public static void exportWeightsAndBiasesToFile(float[][][] weights, float[][] biases) {
+    public static void exportWeightsAndBiasesToFile(double[][][] weights, double[][] biases) {
         try {
             String exportString = "";
             for (int i = 0; i < weights.length; i++) {
@@ -103,12 +105,12 @@ public class NeuralNetworkUtils {
                 AtomicInteger weightsAndBiasesIndex = new AtomicInteger(0);
                 AtomicInteger biasLayerIndex = new AtomicInteger(0);
                 AtomicInteger biasIndex = new AtomicInteger(0);
-                Arrays.stream(scanner.nextLine().split("%")).forEach(weightsAndBiases->{
-                    if (weightsAndBiasesIndex.get() == 0){
-                        Arrays.stream(weightsAndBiases.split("/")).forEach(layer->{
-                            Arrays.stream(layer.split("\\|")).forEach(neuron->{
-                                Arrays.stream(neuron.split(";")).forEach(weight->{
-                                    neuralNet.getWeights()[indexLayer.get()][indexNeuron.get()][indexWeight.get()] = Float.parseFloat(weight);
+                Arrays.stream(scanner.nextLine().split("%")).forEach(weightsAndBiases -> {
+                    if (weightsAndBiasesIndex.get() == 0) {
+                        Arrays.stream(weightsAndBiases.split("/")).forEach(layer -> {
+                            Arrays.stream(layer.split("\\|")).forEach(neuron -> {
+                                Arrays.stream(neuron.split(";")).forEach(weight -> {
+                                    neuralNet.getWeights()[indexLayer.get()][indexNeuron.get()][indexWeight.get()] = Double.parseDouble(weight);
                                     indexWeight.getAndIncrement();
                                 });
                                 indexWeight.set(0);
@@ -119,10 +121,10 @@ public class NeuralNetworkUtils {
                             indexLayer.getAndIncrement();
                         });
                         weightsAndBiasesIndex.getAndIncrement();
-                    }else{
-                        Arrays.stream(weightsAndBiases.split("@")).forEach(biasLayer->{
-                            Arrays.stream(biasLayer.split("\\$")).forEach(bias->{
-                                neuralNet.getBias()[biasLayerIndex.get()][biasIndex.get()] = Float.parseFloat(bias);
+                    } else {
+                        Arrays.stream(weightsAndBiases.split("@")).forEach(biasLayer -> {
+                            Arrays.stream(biasLayer.split("\\$")).forEach(bias -> {
+                                neuralNet.getBias()[biasLayerIndex.get()][biasIndex.get()] = Double.parseDouble(bias);
                                 biasIndex.getAndIncrement();
                             });
                             biasIndex.set(0);
@@ -137,86 +139,84 @@ public class NeuralNetworkUtils {
         }
     }
 
-    public static float sigmoid(float sum) {
-        return (float) (1 / (1 + Math.exp(-sum)));
+    public static double sigmoid(double sum) {
+        return (double) (1 / (1 + Math.exp(-sum)));
     }
 
-    public static float sigmoidDerivative(float value) {
+    public static double sigmoidDerivative(double value) {
         return value * (1 - value);
     }
 
-    public static float relu(float sum) {
+    public static double relu(double sum) {
         return sum > 0 ? sum : 0;
     }
 
-    public static float reluDerivative(float value) {
+    public static double reluDerivative(double value) {
         return value > 0 ? 1 : 0;
     }
 
-    public static float derivativeSigmoid(float value) {
+    public static double derivativeSigmoid(double value) {
         return sigmoid(value) * (1 - sigmoid(value));
     }
 
-    public static float selu(float sum) {
+    public static double selu(double sum) {
         if (sum <= 0) {
-            return ((float) ((ALPHA * Math.exp(sum) - ALPHA) * LAMBDA));
+            return ((double) ((ALPHA * Math.exp(sum) - ALPHA) * LAMBDA));
         }
         return (sum * LAMBDA);
 
     }
 
-    public static float seluDerivativeFromGuess(float value) {
+    public static double seluDerivativeFromGuess(double value) {
         if (value > 0) {
             return LAMBDA;
         }
         return (value + LAMBDA * ALPHA);
     }
 
-    public static float seluDerivative(float value) {
+    public static double seluDerivative(double value) {
         if (value > 0) {
             return LAMBDA;
         }
-        return (float) (LAMBDA * ALPHA * Math.exp(value));
+        return (double) (LAMBDA * ALPHA * Math.exp(value));
     }
 
-    public static float basicError(float answer, float value) {
+    public static double basicError(double answer, double value) {
         return answer - value;
     }
 
-    public static float basicErrorDerivative(float answer, float value) {
+    public static double basicErrorDerivative(double answer, double value) {
         return 1;
     }
 
-    public static float meanSquareError(float answer, float value) {
-        return (float) Math.pow(answer - value, 2) / 2;
+    public static double meanSquareError(double answer, double value) {
+        return (double) Math.pow(answer - value, 2) / 2;
     }
 
-    public static float meanSquareErrorDerivative(float answer, float value) {
+    public static double meanSquareErrorDerivative(double answer, double value) {
         return (value - answer);
     }
 
-    public static float crossEntropyErrorDerivative(float answer, float value) {
-        return (float) (answer * Math.log(value));
+    public static double crossEntropyErrorDerivative(double answer, double value) {
+        return answer * Math.log(value);
     }
 
-    public static float softmax(float value, float[] neuronValues) {
-        float total = 0f;
+    public static double softmax(double value, double[] neuronValues) {
+        double total = 0d;
         for (int i = 0; i < neuronValues.length; i++) {
-            total+=Math.exp(neuronValues[i]);
+            total += Math.exp(neuronValues[i]);
         }
-        return (float)(Math.exp(value)/total);
+        return (Math.exp(value) / total);
     }
 
-    public static float softmaxDerivative(float[] neuronValues) {
-        //float[][] derivatives = new float[neuronValues.length][neuronValues.length];
-        float derivative = 0f;
-        for (int i = 0; i < neuronValues.length; i++) {
-            for (int j = 0; j < neuronValues.length; j++) {
-                if(i == j){
-                    derivative += neuronValues[i] * (1 - neuronValues[i]);
-                }else{
-                    derivative += -neuronValues[i] * neuronValues[j];
-                }
+    public static double softmaxDerivative(double[] neuronValues, int index) {
+        //double[][] derivatives = new double[neuronValues.length][neuronValues.length];
+        double derivative = 0d;
+        for (int j = 0; j < neuronValues.length; j++) {
+            if (index == j) {
+                derivative = neuronValues[j] * (1 - neuronValues[j]);
+            } else {
+                derivative = -neuronValues[j] * neuronValues[j];
             }
         }
         return derivative;

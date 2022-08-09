@@ -9,8 +9,8 @@ import java.util.Arrays;
 public class MatrixUtilsTest {
     @Test
     public void multiplyTest(){
-        float[][] a = new float[][]{{1, -1, 2},{0,-3,1}};
-        float[] b = new float[]{2,1,0};
+        double[][] a = new double[][]{{1, -1, 2},{0,-3,1}};
+        double[] b = new double[]{2,1,0};
         MatrixUtils.multiply(a,b);
         System.out.println(Arrays.deepToString(a));
     }
